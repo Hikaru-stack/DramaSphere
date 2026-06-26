@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<!--
+  ╔═══════════════════════════════════════════════════════════════╗
+  ║             DramaSphere — Asian Drama Landing Page            ║
+  ║   Dark-mode | Glassmorphism | EN/AR i18n | Content Locker    ║
+  ╚═══════════════════════════════════════════════════════════════╝
+-->
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Stream thousands of K-Dramas, C-Dramas, Thai series and Asian movies in HD.">
+  <title>DramaSphere — Stream Asian Dramas in HD</title>
+
+  <!-- Google Fonts: Inter (Latin) + Cairo (Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       §1  DESIGN TOKENS — CSS CUSTOM PROPERTIES
+    ═══════════════════════════════════════════════════════════ */
+    :root {
+      /* ── Dark palette (default) ── */
+      --bg-root:        #0a0a0f;
+      --bg-surface:     #12121e;
+      --bg-card:        #181826;
+      --bg-card-hover:  #1e1e30;
+      --nav-glass:      rgba(10, 10, 15, 0.80);
+
+      --text-hi:        #f0f0f8;
+      --text-mid:       #8888b0;
+      --text-lo:        #44445a;
+
+      /* ── Accent ── */
+      --accent-a:       #9B5DE5;   /* purple */
+      --accent-b:       #F15BB5;   /* pink   */
+      --accent-c:       #00F5D4;   /* teal dot */
+      --grad-accent:    linear-gradient(135deg, #9B5DE5, #F15BB5);
+      --grad-card:      linear-gradient(180deg, transparent 45%, rgba(8,8,14,.97) 100%);
+      --grad-hero:      linear-gradient(120deg,
+                          rgba(10,10,15,.93) 0%,
+                          rgba(14,9,32,.70) 55%,
+                          rgba(10,10,15,.96) 100%);
+
+      /* ── Surfaces ── */
+      --border-subtle:  rgba(155,93,229,.16);
+      --border-glow:    rgba(155,93,229,.55);
+      --shadow-card:    0 8px 32px rgba(0,0,0,.55);
+      --shadow-modal:   0 40px 90px rgba(0,0,0,.80), 0 0 0 1px rgba(155,93,229,.22);
+
+      /* ── Modal backdrop ── */
+      --modal-bg:       rgba(4,4,10,.88);
+      --modal-card:     #141427;
+
+      /* ── Transitions ── */
+      --ease:   0.30s cubic-bezier(0.4, 0, 0.2, 1);
+      --spring: 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Light-mode overrides */
+    [data-theme="light"] {
+      --bg-root:        #f2f2f9;
+      --bg-surface:     #e4e4f0;
+      --bg-card:        #ffffff;
+      --bg-card-hover:  #f5f5ff;
+      --nav-glass:      rgba(242,242,249,.82);
+      --text-hi:        #0a0a1e;
+      --text-mid:       #44445a;
+      --text-lo:        #9999bb;
+      --border-subtle:  rgba(155,93,229,.18);
+      --shadow-card:    0 8px 32px rgba(0,0,0,.10);
+      --modal-bg:       rgba(8,8,24,.84);
+      --modal-card:     #ffffff;
+      --grad-card:      linear-gradient(180deg, transparent 45%, rgba(242,242,249,.97) 100%);
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §2  RESET & BASE
+    ═══════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', 'Cairo', sans-serif;
+      background: var(--bg-root);
+      color: var(--text-hi);
+      line-height: 1.65;
+      overflow-x: hidden;
+      transition: background var(--ease), color var(--ease);
+    }
+
+    /* Arabic body gets Cairo as primary */
+    [lang="ar"] body,
+    [lang="ar"] * { font-family: 'Cairo', 'Inter', sans-serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar               { width: 5px; }
+    ::-webkit-scrollbar-track         { background: var(--bg-root); }
+    ::-webkit-scrollbar-thumb         { background: var(--accent-a); border-radius: 4px; }
+
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §3  NAVIGATION — Glassmorphism sticky bar
+    ═══════════════════════════════════════════════════════════ */
+    .nav {
+      position: fixed; top: 0; inset-inline: 0; z-index: 900;
+      height: 68px;
+      padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+      background: var(--nav-glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background var(--ease), box-shadow var(--ease);
+    }
+    .nav.scrolled { box-shadow: 0 6px 40px rgba(0,0,0,.3); }
+
+    /* Logo */
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: var(--grad-accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .logo-word {
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -.5px;
+      background: var(--grad-accent);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Desktop nav links */
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem; list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: .88rem; font-weight: 500;
+      color: var(--text-mid);
+      position: relative;
+      transition: color var(--ease);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+      background: var(--grad-accent); border-radius: 2px;
+      transition: width var(--ease);
+    }
+    [dir="rtl"] .nav-links a::after { left: auto; right: 0; }
+    .nav-links a:hover { color: var(--text-hi); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* Right controls */
+    .nav-right { display: flex; align-items: center; gap: .85rem; }
+
+    /* Language switcher pill */
+    .lang-pill {
+      display: flex; overflow: hidden;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+    }
+    .lang-btn {
+      padding: 5px 13px; border: none; background: none;
+      font-size: .78rem; font-weight: 700; letter-spacing: .5px;
+      color: var(--text-mid);
+      transition: all var(--ease);
+    }
+    .lang-btn.active {
+      background: var(--grad-accent);
+      color: #fff;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      width: 52px; height: 28px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      position: relative; cursor: pointer;
+      display: flex; align-items: center; padding: 0 4px;
+      transition: background var(--ease);
+    }
+    .theme-knob {
+      width: 20px; height: 20px;
+      background: var(--grad-accent);
+      border-radius: 50%;
+      position: absolute; left: 4px;
+      transition: left var(--spring);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; line-height: 1;
+    }
+    [data-theme="light"] .theme-knob { left: 26px; }
+
+    /* Hamburger (mobile only) */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text-hi); border-radius: 2px;
+      transition: all var(--ease);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §4  MOBILE DRAWER
+    ═══════════════════════════════════════════════════════════ */
+    .mobile-drawer {
+      display: none;
+      position: fixed; top: 68px; inset-inline: 0; z-index: 850;
+      background: var(--bg-root);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1.5rem 5%;
+      transform: translateY(-8px); opacity: 0; pointer-events: none;
+      transition: transform var(--ease), opacity var(--ease);
+    }
+    .mobile-drawer.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .drawer-links { list-style: none; display: flex; flex-direction: column; gap: .2rem; }
+    .drawer-links a {
+      display: block; padding: .7rem 0;
+      text-decoration: none; font-size: 1rem; font-weight: 600;
+      color: var(--text-mid);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: color var(--ease);
+    }
+    .drawer-links a:last-child { border: none; }
+    .drawer-links a:hover { color: var(--accent-a); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §5  HERO — Cinematic full-bleed banner
+    ═══════════════════════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+
+    /* Background — dynamic slideshow container (Task 3) */
+    .hero-bg {
+      position: absolute; inset: 0;
+      transform: scale(1.08);           /* headroom for parallax scroll */
+      overflow: hidden;
+    }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(.55) saturate(1.15);
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      will-change: opacity, transform;
+    }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide.kb { animation: kenBurns 8s ease-in-out forwards; }
+    @keyframes kenBurns {
+      from { transform: scale(1.06) translate(0.8%, 0.4%); }
+      to   { transform: scale(1.0)  translate(-0.6%, -0.3%); }
+    }
+
+    /* Gradient overlays */
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: var(--grad-hero);
+    }
+    .hero-overlay::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 75% 50%, rgba(155,93,229,.14) 0%, transparent 65%),
+        linear-gradient(to bottom, transparent 50%, var(--bg-root) 100%);
+    }
+
+    /* Hero copy */
+    .hero-body {
+      position: relative; z-index: 2;
+      padding: 0 5%; padding-top: 80px;
+      max-width: 780px;
+    }
+
+    /* Live-now eyebrow */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(155,93,229,.14);
+      border: 1px solid rgba(155,93,229,.30);
+      border-radius: 50px; padding: 6px 16px;
+      font-size: .73rem; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--accent-a);
+      margin-bottom: 1.4rem;
+    }
+    .eyebrow-dot {
+      width: 8px; height: 8px;
+      background: var(--accent-c);
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.4; transform:scale(.7); }
+    }
+
+    /* Big headline */
+    .hero-h1 {
+      font-size: clamp(2.1rem, 5.5vw, 4rem);
+      font-weight: 900; line-height: 1.08;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.2rem;
+    }
+    .hero-h1 .grad { background: var(--grad-accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    .hero-sub {
+      font-size: 1.02rem; color: var(--text-mid);
+      max-width: 500px; line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+
+    /* CTA row */
+    .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 30px;
+      background: var(--grad-accent);
+      color: #fff; font-size: .97rem; font-weight: 700;
+      border: none; border-radius: 12px; text-decoration: none;
+      animation: pulse-ring 3.2s ease-in-out infinite;
+      transition: transform var(--ease), box-shadow var(--ease), animation-play-state var(--ease);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.14), transparent);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(155,93,229,.55);
+      animation-play-state: paused;
+    }
+    @keyframes pulse-ring {
+      0%,100% { box-shadow: 0 0 0 0 rgba(155,93,229,.6); }
+      55%      { box-shadow: 0 0 0 14px rgba(155,93,229,0); }
+    }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-hi); font-size: .97rem; font-weight: 600;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 12px; text-decoration: none;
+      backdrop-filter: blur(8px);
+      transition: all var(--ease);
+    }
+    .btn-ghost:hover { border-color: var(--accent-a); color: var(--accent-a); background: rgba(155,93,229,.08); }
+
+    /* Stats row */
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+      margin-top: 2.8rem; padding-top: 2rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .stat-val {
+      display: block; font-size: 1.55rem; font-weight: 800;
+      background: var(--grad-accent); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .stat-lbl { font-size: .72rem; color: var(--text-lo); text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
+
+    /* Floating side-badges (desktop) */
+    .hero-badges {
+      position: absolute; right: 6%; top: 50%; z-index: 2;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: .9rem;
+    }
+    .h-badge {
+      display: flex; align-items: center; gap: 12px;
+      min-width: 210px; padding: 12px 16px;
+      background: rgba(10,10,15,.72);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      transition: all var(--ease);
+      cursor: pointer;
+    }
+    .h-badge:hover { border-color: var(--accent-a); transform: translateX(-6px); }
+    .h-badge-img {
+      width: 42px; height: 58px; border-radius: 8px;
+      object-fit: cover; background: var(--bg-card); flex-shrink: 0;
+    }
+    .h-badge-title { font-size: .8rem; font-weight: 700; display: block; color: var(--text-hi); }
+    .h-badge-ep    { font-size: .7rem; color: var(--text-mid); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §6  TICKER — Running drama titles
+    ═══════════════════════════════════════════════════════════ */
+    .ticker-wrap {
+      overflow: hidden;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 9px 0;
+    }
+    .ticker-track {
+      display: flex; width: max-content;
+      animation: marquee 34s linear infinite;
+    }
+    .ticker-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 28px; font-size: .78rem; color: var(--text-mid);
+      white-space: nowrap;
+    }
+    .t-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-a); }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §7  SECTION SCAFFOLD
+    ═══════════════════════════════════════════════════════════ */
+    .section { padding: 5rem 5%; }
+    .section-alt { background: var(--bg-surface); }
+
+    .sec-head {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      margin-bottom: 2.4rem;
+    }
+    .sec-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .7rem; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent-a);
+      margin-bottom: .4rem;
+    }
+    .sec-label::before {
+      content: ''; width: 18px; height: 2px;
+      background: var(--grad-accent); border-radius: 2px;
+    }
+    [dir="rtl"] .sec-label { flex-direction: row-reverse; }
+    [dir="rtl"] .sec-label::before { order: 1; }
+
+    .sec-title {
+      font-size: clamp(1.4rem, 3vw, 1.95rem);
+      font-weight: 800; letter-spacing: -.4px;
+    }
+    .sec-link {
+      font-size: .85rem; font-weight: 600; color: var(--accent-a);
+      text-decoration: none; display: flex; align-items: center; gap: 5px;
+      transition: gap var(--ease);
+    }
+    .sec-link:hover { gap: 9px; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §8  DRAMA CARD GRID
+    ═══════════════════════════════════════════════════════════ */
+    .drama-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 1.3rem;
+    }
+
+    .d-card {
+      position: relative; border-radius: 16px; overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-card);
+      aspect-ratio: 2/3;
+      cursor: pointer;
+      transition:
+        transform .38s cubic-bezier(.4,0,.2,1),
+        box-shadow .38s cubic-bezier(.4,0,.2,1),
+        border-color .28s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .d-card:hover {
+      transform: translateY(-7px) scale(1.025);
+      border-color: var(--accent-a);
+      box-shadow:
+        0 22px 60px rgba(0,0,0,.60),
+        0 0 0 2px var(--accent-a),
+        0 0 36px rgba(155,93,229,.28);
+    }
+
+    .card-poster {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .55s ease;
+    }
+    .d-card:hover .card-poster { transform: scale(1.07); }
+
+    .card-fog {
+      position: absolute; inset: 0;
+      background: var(--grad-card);
+      z-index: 1;
+    }
+
+    .card-body {
+      position: absolute; bottom: 0; inset-inline: 0;
+      z-index: 2; padding: 14px;
+      transform: translateY(4px);
+      transition: transform var(--ease);
+    }
+    .d-card:hover .card-body { transform: translateY(0); }
+
+    .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+    .card-tag {
+      font-size: .6rem; font-weight: 700;
+      color: var(--accent-b);
+      background: rgba(241,91,181,.13);
+      border: 1px solid rgba(241,91,181,.24);
+      padding: 2px 8px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .card-title { font-size: .9rem; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 4px; }
+    .card-meta { display: flex; align-items: center; gap: 8px; font-size: .69rem; color: rgba(255,255,255,.55); margin-bottom: 10px; }
+    .card-stars { color: #fbbf24; }
+
+    .card-cta {
+      width: 100%; padding: 9px;
+      background: var(--grad-accent);
+      color: #fff; font-size: .78rem; font-weight: 700;
+      border: none; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      opacity: 0; transform: translateY(5px);
+      transition: opacity var(--ease), transform var(--ease);
+    }
+    .d-card:hover .card-cta { opacity: 1; transform: translateY(0); }
+
+    /* Corner badge */
+    .card-flag {
+      position: absolute; top: 10px; right: 10px;
+      z-index: 3;
+      background: var(--grad-accent);
+      color: #fff; font-size: .6rem; font-weight: 800;
+      padding: 3px 10px; border-radius: 6px;
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    [dir="rtl"] .card-flag { right: auto; left: 10px; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §9  FEATURED CAROUSEL (Task 2)
+    ═══════════════════════════════════════════════════════════ */
+    .feature-strip {
+      position: relative;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    .feature-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 340px;
+    }
+    .feature-copy {
+      padding: 4rem 5%;
+      display: flex; flex-direction: column; justify-content: center;
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .feature-copy p {
+      font-size: .9rem; color: var(--text-mid);
+      line-height: 1.75; max-width: 460px;
+      margin: 1rem 0 0;
+    }
+    .feature-copy.fade-out { opacity: 0; transform: translateX(-18px); }
+    [dir="rtl"] .feature-copy.fade-out { transform: translateX(18px); }
+
+    .feature-vis {
+      position: relative; overflow: hidden;
+      transition: opacity .35s ease;
+    }
+    .feature-vis.fade-out { opacity: 0; }
+    .feature-vis img { width:100%; height:100%; object-fit:cover; opacity:.68; }
+    .feature-vis::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, var(--bg-surface), transparent 50%);
+    }
+    [dir="rtl"] .feature-vis::after { background: linear-gradient(to left, var(--bg-surface), transparent 50%); }
+
+    /* Carousel navigation */
+    .carousel-controls {
+      display: flex; align-items: center; gap: .6rem;
+      position: absolute; bottom: 1.2rem; left: 5%;
+      z-index: 10;
+    }
+    [dir="rtl"] .carousel-controls { left: auto; right: 5%; }
+
+    .carousel-arrow {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(10,10,15,.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-hi);
+      font-size: 1.3rem; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all var(--ease);
+    }
+    .carousel-arrow:hover {
+      background: var(--grad-accent);
+      border-color: transparent;
+      transform: scale(1.1);
+    }
+    .carousel-dots { display: flex; align-items: center; gap: 5px; }
+    .carousel-dot {
+      width: 6px; height: 6px; border-radius: 3px;
+      background: var(--border-subtle);
+      border: none; cursor: pointer; padding: 0;
+      transition: width var(--ease), background var(--ease);
+    }
+    .carousel-dot.active { width: 22px; background: var(--accent-a); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §10  FOOTER
+    ═══════════════════════════════════════════════════════════ */
+    .footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 3.5rem 5% 2rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand p { font-size: .83rem; color: var(--text-lo); margin-top: .9rem; line-height: 1.75; }
+    .footer-col-title { font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.1rem; }
+    .footer-list { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
+    .footer-list a { font-size: .83rem; color: var(--text-lo); text-decoration: none; transition: color var(--ease); }
+    .footer-list a:hover { color: var(--accent-a); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+      padding-top: 2rem; border-top: 1px solid var(--border-subtle);
+    }
+    .footer-bottom p { font-size: .75rem; color: var(--text-lo); }
+    .socials { display: flex; gap: .75rem; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      color: var(--text-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; text-decoration: none;
+      transition: all var(--ease);
+    }
+    .social-btn:hover { background: var(--grad-accent); border-color: transparent; color: #fff; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §11  MODAL — Content Locker Overlay
+    ═══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9500;
+      background: var(--modal-bg);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s ease, visibility .3s ease;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal-box {
+      background: var(--modal-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 26px;
+      padding: 44px 38px;
+      max-width: 470px; width: 100%;
+      position: relative;
+      box-shadow: var(--shadow-modal);
+      transform: scale(.91) translateY(22px);
+      transition: transform var(--spring);
+    }
+    .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+
+    /* Close button */
+    .modal-x {
+      position: absolute; top: 18px; right: 18px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      color: var(--text-mid); font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--ease);
+    }
+    [dir="rtl"] .modal-x { right: auto; left: 18px; }
+    .modal-x:hover { background: rgba(155,93,229,.2); color: var(--text-hi); border-color: var(--accent-a); }
+
+    /* Modal icon */
+    .modal-icon {
+      width: 68px; height: 68px;
+      background: var(--grad-accent); border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; margin: 0 auto 1.5rem;
+      box-shadow: 0 12px 32px rgba(155,93,229,.40);
+    }
+
+    .modal-title { font-size: 1.38rem; font-weight: 800; text-align: center; letter-spacing: -.3px; margin-bottom: .55rem; }
+    .modal-desc  { font-size: .88rem; color: var(--text-mid); text-align: center; line-height: 1.65; margin-bottom: 1.8rem; }
+    .modal-desc strong { color: var(--text-hi); }
+
+    /* Locker container */
+    .locker-wrap {
+      background: var(--bg-surface);
+      border: 1.5px dashed var(--border-subtle);
+      border-radius: 14px;
+      padding: 28px 18px;
+      min-height: 120px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border-subtle);
+      border-top-color: var(--accent-a);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .locker-label {
+      font-size: .72rem; font-weight: 700; color: var(--text-lo);
+      text-transform: uppercase; letter-spacing: 1.5px;
+    }
+
+    /* ✅ YOUR CONTENT LOCKER SCRIPT/IFRAME GOES INSIDE THIS DIV */
+    #content-locker-slot { width: 100%; }
+
+    /* Trust line */
+    .modal-trust { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: .74rem; color: var(--text-lo); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §12  SCROLL REVEAL
+    ═══════════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .rv-1 { transition-delay: .08s; }
+    .rv-2 { transition-delay: .16s; }
+    .rv-3 { transition-delay: .24s; }
+    .rv-4 { transition-delay: .32s; }
+    .rv-5 { transition-delay: .40s; }
+    .rv-6 { transition-delay: .48s; }
+
+    /* Respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       §13  RESPONSIVE BREAKPOINTS
+    ═══════════════════════════════════════════════════════════ */
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+      .hero-badges   { display: none; }
+      .feature-inner { grid-template-columns: 1fr; }
+      .feature-vis   { height: 220px; order: -1; }
+      .feature-vis::after { background: linear-gradient(to top, var(--bg-surface), transparent); }
+      .footer-grid   { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .carousel-controls { bottom: .75rem; }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .nav-links     { display: none; }
+      .hamburger     { display: flex; }
+      .mobile-drawer { display: block; }
+      .section       { padding: 3rem 5%; }
+      .drama-grid    { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: .9rem; }
+      .hero-stats    { gap: 1.4rem; }
+      .cta-row       { flex-direction: column; align-items: flex-start; }
+      .modal-box     { padding: 32px 22px; }
+      .footer-grid   { grid-template-columns: 1fr; gap: 1.5rem; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .feature-copy  { padding: 2rem 5% 3.5rem; }
+      .search-panel  { padding: .75rem 4%; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       §14  SEARCH BAR (Task 1)
+    ═══════════════════════════════════════════════════════════ */
+    .search-wrap {
+      display: flex; align-items: center;
+    }
+    .search-toggle {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      color: var(--text-mid);
+      transition: all var(--ease);
+      flex-shrink: 0;
+    }
+    .search-toggle:hover,
+    .search-toggle[aria-expanded="true"] {
+      border-color: var(--accent-a);
+      color: var(--accent-a);
+      background: rgba(155,93,229,.10);
+    }
+
+    /* Fixed drop-down panel */
+    .search-panel {
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      z-index: 840;
+      background: rgba(var(--bg-surface-rgb, 18,18,30), .96);
+      background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: .85rem 5%;
+      box-shadow: 0 12px 36px rgba(0,0,0,.3);
+      opacity: 0; transform: translateY(-10px); pointer-events: none;
+      transition: opacity var(--ease), transform var(--ease);
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+    }
+    .search-panel.open {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+    .search-panel-inner {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0 14px;
+      transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .search-panel-inner:focus-within {
+      border-color: var(--accent-a);
+      box-shadow: 0 0 0 3px rgba(155,93,229,.12);
+    }
+    .search-panel-icon { color: var(--text-lo); flex-shrink: 0; }
+    .search-input {
+      flex: 1; background: none; border: none; outline: none;
+      padding: 12px 0;
+      color: var(--text-hi); font-size: .92rem; font-family: inherit;
+    }
+    .search-input::placeholder { color: var(--text-lo); }
+    .search-clear {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-lo); font-size: .85rem; padding: 4px;
+      border-radius: 4px; flex-shrink: 0;
+      transition: color var(--ease);
+    }
+    .search-clear:hover { color: var(--text-hi); }
+
+    /* Results dropdown */
+    .search-dropdown {
+      list-style: none;
+      margin-top: .55rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0,0,0,.30);
+      display: none;
+      max-height: 300px; overflow-y: auto;
+    }
+    .search-dropdown::-webkit-scrollbar       { width: 3px; }
+    .search-dropdown::-webkit-scrollbar-thumb { background: var(--accent-a); border-radius: 3px; }
+    .search-dropdown.visible { display: block; }
+    .search-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; cursor: pointer;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background var(--ease);
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover, .search-item:focus { background: rgba(155,93,229,.10); outline: none; }
+    .search-item-icon { flex-shrink: 0; font-size: 1rem; }
+    .search-item-text {
+      flex: 1; font-size: .84rem; font-weight: 500; color: var(--text-hi);
+    }
+    .search-item-cat {
+      font-size: .64rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--accent-a);
+      background: rgba(155,93,229,.12);
+      padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
+    }
+    .search-empty {
+      padding: 18px; text-align: center;
+      font-size: .83rem; color: var(--text-lo);
+    }
+
+    /* Small mobile */
+    @media (max-width: 420px) {
+      .drama-grid { grid-template-columns: repeat(2,1fr); }
+      .hero-h1    { font-size: 1.9rem; letter-spacing: -.5px; }
+      .nav        { padding: 0 4%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+
+  <!-- Logo -->
+  <a class="logo" href="#home" aria-label="DramaSphere – Home">
+    <div class="logo-mark" aria-hidden="true">🎬</div>
+    <span class="logo-word" data-i18n="logo">DramaSphere</span>
+  </a>
+
+  <!-- Desktop links -->
+  <ul class="nav-links" role="list">
+    <li><a href="#home"      data-i18n="nav-home">Home</a></li>
+    <li><a href="#kdramas"   data-i18n="nav-kd">K-Dramas</a></li>
+    <li><a href="#cdramas"   data-i18n="nav-cd">C-Dramas</a></li>
+    <li><a href="#movies"    data-i18n="nav-movies">Movies</a></li>
+    <li><a href="#trending"  data-i18n="nav-trending">Trending</a></li>
+  </ul>
+
+  <!-- Controls -->
+  <div class="nav-right">
+
+    <!-- ── Search toggle (Task 1) ── -->
+    <div class="search-wrap" id="search-wrap">
+      <button class="search-toggle" id="search-toggle"
+              onclick="toggleSearch()"
+              aria-label="Search dramas"
+              aria-expanded="false"
+              aria-controls="search-panel">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="lang-pill" role="group" aria-label="Select language">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')" aria-pressed="true">EN</button>
+      <button class="lang-btn"        id="btn-ar" onclick="setLang('ar')" aria-pressed="false">AR</button>
+    </div>
+
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
+      <div class="theme-knob" id="theme-knob"><span id="theme-icon">🌙</span></div>
+    </button>
+
+    <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SEARCH PANEL (Task 1) — slides down from nav on open
+════════════════════════════════════════════════════════════════ -->
+<div class="search-panel" id="search-panel" role="search" aria-hidden="true">
+  <div class="search-panel-inner">
+    <svg class="search-panel-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input class="search-input" id="search-input"
+           type="text"
+           placeholder="Search K-Dramas, C-Dramas, movies…"
+           autocomplete="off"
+           aria-label="Search dramas"
+           aria-autocomplete="list"
+           aria-controls="search-dropdown">
+    <button class="search-clear" id="search-clear"
+            onclick="clearSearch()"
+            aria-label="Clear search">✕</button>
+  </div>
+  <ul class="search-dropdown" id="search-dropdown" role="listbox"></ul>
+</div>
+
+<!-- Mobile drawer -->
+<div class="mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="false" aria-label="Navigation menu">
+  <ul class="drawer-links" role="list">
+    <li><a href="#home"     data-i18n="nav-home"     onclick="closeDrawer()">Home</a></li>
+    <li><a href="#kdramas"  data-i18n="nav-kd"       onclick="closeDrawer()">K-Dramas</a></li>
+    <li><a href="#cdramas"  data-i18n="nav-cd"       onclick="closeDrawer()">C-Dramas</a></li>
+    <li><a href="#movies"   data-i18n="nav-movies"   onclick="closeDrawer()">Movies</a></li>
+    <li><a href="#trending" data-i18n="nav-trending"  onclick="closeDrawer()">Trending</a></li>
+  </ul>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-body">
+    <div class="eyebrow">
+      <span class="eyebrow-dot" aria-hidden="true"></span>
+      <span data-i18n="hero-eyebrow">Now Streaming · New Episodes Daily</span>
+    </div>
+
+    <h1 class="hero-h1">
+      <span data-i18n="hero-h1a">Stream Your Favorite</span><br>
+      <span class="grad" data-i18n="hero-h1b">Asian Dramas in HD</span>
+    </h1>
+
+    <p class="hero-sub" data-i18n="hero-sub">
+      Thousands of K-Dramas, C-Dramas, Thai series, and movies — new episodes every day, zero buffering.
+    </p>
+
+    <div class="cta-row">
+      <button class="btn-primary" onclick="openModal('Crash Landing on You')">
+        <span aria-hidden="true">▶</span>
+        <span data-i18n="hero-cta1">Watch Latest Episode</span>
+      </button>
+      <a class="btn-ghost" href="#trending">
+        <span aria-hidden="true">🔥</span>
+        <span data-i18n="hero-cta2">Trending Now</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <span class="stat-val">12K+</span>
+        <span class="stat-lbl" data-i18n="stat1">Episodes</span>
+      </div>
+      <div>
+        <span class="stat-val">800+</span>
+        <span class="stat-lbl" data-i18n="stat2">Series</span>
+      </div>
+      <div>
+        <span class="stat-val">1080p</span>
+        <span class="stat-lbl" data-i18n="stat3">HD Quality</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating drama badges (hidden on mobile) -->
+  <div class="hero-badges" aria-hidden="true">
+    <div class="h-badge" onclick="openModal('Crash Landing on You')">
+      <img class="h-badge-img"
+           src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=120&q=80"
+           alt="Crash Landing on You poster" loading="lazy">
+      <div>
+        <span class="h-badge-title">Crash Landing on You</span>
+        <span class="h-badge-ep">🔥 Ep 16 · HD</span>
+      </div>
+    </div>
+    <div class="h-badge" onclick="openModal('Queen of Tears')">
+      <img class="h-badge-img"
+           src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=120&q=80"
+           alt="Queen of Tears poster" loading="lazy">
+      <div>
+        <span class="h-badge-title">Queen of Tears</span>
+        <span class="h-badge-ep">⭐ New Today</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TICKER BAR
+════════════════════════════════════════════════════════════════ -->
+<div class="ticker-wrap" aria-label="Now airing" aria-hidden="true">
+  <div class="ticker-track" id="ticker">
+    <!-- Titles duplicated for seamless loop — JS populates them -->
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     K-DRAMAS GRID
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="kdramas">
+  <div class="sec-head">
+    <div>
+      <p class="sec-label" data-i18n="lbl-kd">K-Dramas</p>
+      <h2 class="sec-title" data-i18n="ttl-kd">Top Rated Series</h2>
+    </div>
+    <a class="sec-link" href="#" data-i18n="all-kd">View All →</a>
+  </div>
+  <div class="drama-grid" id="grid-kd"></div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FEATURED CAROUSEL (Task 2) — JS-driven, auto-advances every 5s
+════════════════════════════════════════════════════════════════ -->
+<div class="feature-strip" id="movies">
+  <div class="feature-inner">
+    <!-- Copy panel — populated by initCarousel() -->
+    <div class="feature-copy" id="feature-copy"></div>
+    <!-- Visual panel -->
+    <div class="feature-vis" id="feature-vis">
+      <img id="feature-img" src="" alt="Featured drama" loading="eager">
+    </div>
+  </div>
+  <!-- Navigation -->
+  <div class="carousel-controls" aria-label="Carousel controls">
+    <button class="carousel-arrow" id="carousel-prev"
+            onclick="carouselStep(-1)" aria-label="Previous feature">‹</button>
+    <div class="carousel-dots" id="carousel-dots" role="tablist"></div>
+    <button class="carousel-arrow" id="carousel-next"
+            onclick="carouselStep(1)"  aria-label="Next feature">›</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     C-DRAMAS GRID
+════════════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="cdramas">
+  <div class="sec-head">
+    <div>
+      <p class="sec-label" data-i18n="lbl-cd">C-Dramas</p>
+      <h2 class="sec-title" data-i18n="ttl-cd">Chinese Originals</h2>
+    </div>
+    <a class="sec-link" href="#" data-i18n="all-cd">View All →</a>
+  </div>
+  <div class="drama-grid" id="grid-cd"></div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TRENDING GRID
+════════════════════════════════════════════════════════════════ -->
+<section class="section" id="trending">
+  <div class="sec-head">
+    <div>
+      <p class="sec-label" data-i18n="lbl-tr">This Week</p>
+      <h2 class="sec-title" data-i18n="ttl-tr">Trending Now 🔥</h2>
+    </div>
+    <a class="sec-link" href="#" data-i18n="all-tr">View All →</a>
+  </div>
+  <div class="drama-grid" id="grid-tr"></div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="logo" href="#home" aria-label="DramaSphere">
+        <div class="logo-mark" aria-hidden="true">🎬</div>
+        <span class="logo-word" data-i18n="logo">DramaSphere</span>
+      </a>
+      <p data-i18n="foot-desc">Your gateway to the best Asian drama content. Stream thousands of shows in HD quality.</p>
+    </div>
+    <div>
+      <p class="footer-col-title" data-i18n="foot-browse">Browse</p>
+      <ul class="footer-list">
+        <li><a href="#kdramas"  data-i18n="nav-kd">K-Dramas</a></li>
+        <li><a href="#cdramas"  data-i18n="nav-cd">C-Dramas</a></li>
+        <li><a href="#movies"   data-i18n="nav-movies">Movies</a></li>
+        <li><a href="#trending" data-i18n="nav-trending">Trending</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title" data-i18n="foot-info">Info</p>
+      <ul class="footer-list">
+        <li><a href="#" data-i18n="foot-about">About Us</a></li>
+        <li><a href="#" data-i18n="foot-contact">Contact</a></li>
+        <li><a href="#" data-i18n="foot-dmca">DMCA</a></li>
+        <li><a href="#" data-i18n="foot-privacy">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title" data-i18n="foot-lang">Languages</p>
+      <ul class="footer-list">
+        <li><a href="#" onclick="setLang('en');return false">English</a></li>
+        <li><a href="#" onclick="setLang('ar');return false">العربية</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p data-i18n="foot-copy">© 2025 DramaSphere. For entertainment purposes.</p>
+    <div class="socials">
+      <a class="social-btn" href="#" aria-label="TikTok">📱</a>
+      <a class="social-btn" href="#" aria-label="Instagram">📸</a>
+      <a class="social-btn" href="#" aria-label="X / Twitter">🐦</a>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CONTENT LOCKER MODAL
+════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+     onclick="handleBackdropClick(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeModal()" aria-label="Close">✕</button>
+
+    <div class="modal-icon" aria-hidden="true">🔓</div>
+
+    <h2 class="modal-title" id="modal-title" data-i18n="modal-title">Unlock Full Episode</h2>
+    <p class="modal-desc">
+      <span data-i18n="modal-desc">Complete one quick step to stream</span>
+      <strong id="modal-drama-label"> this episode</strong>
+      <span data-i18n="modal-desc2"> in 1080p HD, free.</span>
+    </p>
+
+    <!-- ═══ CONTENT LOCKER CONTAINER ═══ -->
+    <!-- ═══ CONTENT LOCKER CONTAINER ═══ -->
+<div class="locker-wrap">
+  <!-- هذا الـ Spinner ونص التحميل سيختفيان تلقائياً بمجرد ظهور العروض -->
+  <div class="spinner" id="locker-spinner"></div>
+  <p class="locker-label" id="locker-loading-text" data-i18n="modal-loading">Loading unlock options…</p>
+  
+  <!-- هذا المكان السحري الفارغ الذي سيتم حقن عروض OGAds داخله برمجياً -->
+  <div id="content-locker-slot"></div>
+</div>
+<!-- ═══════════════════════════════════════════════ -->
+
+<div class="modal-trust">
+  <span aria-hidden="true">🔒</span>
+  <span data-i18n="modal-trust">Secure &amp; private — no card required.</span>
+</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════ -->
+<script>
+"use strict";
+
+/* ─────────────────────────────────────────────
+   §A  DRAMA DATA
+───────────────────────────────────────────── */
+const DATA = {
+  kd: [
+    { t:"Squid Game", g:["Thriller","Drama"], r:9.3, y:2021, flag:"GLOBAL HIT", img:"https://m.media-amazon.com/images/M/MV5BYTU3ZDVhNmMtMDVlNC00MDc0LTgwNDMtYWE5MTI2ZGI4YWIwXkEyXkFqcGc@.jpg" },
+    { t:"Crash Landing on You", g:["Romance","Comedy"], r:9.2, y:2019, flag:"TOP 1", img:"https://mediaproxy.tvtropes.org/width/1200/https://static.tvtropes.org/pmwiki/pub/images/crashlandingonyou.png" },
+    { t:"Queen of Tears", g:["Melodrama","Romance"], r:9.3, y:2024, flag:"🔥 HOT", img:"https://upload.wikimedia.org/wikipedia/en/e/e2/Queen_of_Tears_poster.png" },
+    { t:"The Glory", g:["Thriller","Drama"], r:9.4, y:2022, flag:"AWARD", img:"https://upload.wikimedia.org/wikipedia/en/7/79/The_Glory_TV_series.jpg" },
+    { t:"Goblin (Guardian: The Lonely and Great God)", g:["Fantasy","Romance"], r:9.1, y:2016, flag:"CLASSIC", img:"https://m.media-amazon.com/images/M/MV5BNWIyNTA3MmItNzY5ZS00NmZhLThjMWYtZjIxYzllZWU5YWIzXkEyXkFqcGc@.jpg" },
+    { t:"Descendants of the Sun", g:["Romance","Action"], r:8.9, y:2016, flag:"POPULAR", img:"https://upload.wikimedia.org/wikipedia/en/6/6e/DescendantsoftheSun.jpg" },
+    { t:"Vincenzo", g:["Action","Comedy"], r:9.0, y:2021, flag:"BADASS", img:"https://upload.wikimedia.org/wikipedia/en/5/5b/Vincenzo_TV_series.jpg" },
+    { t:"Business Proposal", g:["Romance","Comedy"], r:8.6, y:2022, flag:"FUNNY", img:"https://upload.wikimedia.org/wikipedia/en/1/19/A_Business_Proposal.jpg" },
+    { t:"All of Us Are Dead", g:["Horror","Action"], r:8.5, y:2022, flag:"ZOMBIE", img:"https://upload.wikimedia.org/wikipedia/en/2/24/All_of_Us_Are_Dead.jpeg" },
+    { t:"Itaewon Class", g:["Drama","Inspirational"], r:8.8, y:2020, flag:"🔥 HOT", img:"https://upload.wikimedia.org/wikipedia/en/9/99/Itaewon_Class.jpg" },
+    { t:"Alchemy of Souls", g:["Fantasy","Action"], r:9.0, y:2022, flag:"MAGIC", img:"https://upload.wikimedia.org/wikipedia/en/b/b5/Alchemy_of_Souls.jpg" },
+    { t:"Hotel Del Luna", g:["Fantasy","Horror"], r:8.7, y:2019, flag:null, img:"https://upload.wikimedia.org/wikipedia/en/0/00/Hotel_Del_Luna.jpg" },
+    { t:"Extraordinary Attorney Woo", g:["Legal","Drama"], r:9.1, y:2022, flag:"HEARTWARM", img:"https://upload.wikimedia.org/wikipedia/en/9/9d/Strange_Lawyer_Woo_Young-woo.png" },
+    { t:"Sweet Home", g:["Horror","Sci-Fi"], r:8.4, y:2020, flag:"MONSTER", img:"https://i.mydramalist.com/xy8oq_4f.jpg" },
+    { t:"My Demon", g:["Fantasy","Romance"], r:8.8, y:2023, flag:"NEW", img:"https://upload.wikimedia.org/wikipedia/en/0/05/My_Demon.jpg" },
+  ],
+  cd: [
+    { t:"The Untamed",             g:["Fantasy","Adventure"],  r:9.1, y:2019, flag:"CLASSIC", img:"https://upload.wikimedia.org/wikipedia/en/3/31/Theuntamed.jpg" },
+    { t:"Word of Honor",           g:["Action","Romance"],     r:8.9, y:2021, flag:null,      img:"https://mediaproxy.tvtropes.org/width/1200/https://static.tvtropes.org/pmwiki/pub/images/word_of_honor.png" },
+    { t:"Nirvana in Fire",         g:["Historical","Thriller"],r:9.5, y:2015, flag:"LEGEND",  img:"https://upload.wikimedia.org/wikipedia/en/9/9b/Nirvana_In_Fire_%28Lang_Ya_Bang%29_official_poster.jpg" },
+    { t:"Ancient Love Poetry",     g:["Fantasy","Romance"],    r:8.4, y:2021, flag:null,      img:"https://m.media-amazon.com/images/M/MV5BMmNiYjY3YmQtMmJlMC00ZDg3LTk3NWYtMWEyYzAyZDYyYTg5XkEyXkFqcGc@.jpg" },
+    { t:"The Story of Ming Lan",   g:["Historical","Comedy"],  r:8.7, y:2018, flag:null,      img:"https://upload.wikimedia.org/wikipedia/en/f/f3/The_Story_of_Minglan_DVD_cover.jpg" },
+    { t:"Till the End of the Moon",g:["Fantasy","Melodrama"],  r:8.8, y:2023, flag:"NEW",     img:"https://preview.redd.it/till-the-end-of-the-moon-ending-v0-3vsw38yenu2d1.jpeg?width=640&crop=smart&auto=webp&s=6c2b261d35d19fbac6118d2f8a6780af6088dd1f" },
+  ],
+  tr: [
+    { t:"Marry My Husband",             g:["Romance","Thriller"],   r:8.9, y:2024, flag:"🔥 HOT", img:"https://m.media-amazon.com/images/M/MV5BMzVhNjM5MmUtNjU5YS00OGE5LTg3ZGYtMzk0NDcwNGMwOGM0XkEyXkFqcGc@.jpg" },
+    { t:"Alchemy of Souls",             g:["Fantasy","Action"],     r:9.0, y:2022, flag:null,     img:"https://upload.wikimedia.org/wikipedia/en/b/b5/Alchemy_of_Souls.jpg" },
+    { t:"Our Beloved Summer",           g:["Romance","Slice of Life"],r:8.5, y:2021,flag:null,    img:"https://upload.wikimedia.org/wikipedia/en/2/29/Our_Beloved_Summer.jpg" },
+    { t:"Twenty-Five Twenty-One",       g:["Romance","Sports"],     r:8.7, y:2022, flag:null,     img:"https://upload.wikimedia.org/wikipedia/en/1/15/Twenty-Five_Twenty-One.jpg" },
+    { t:"Extraordinary Attorney Woo",   g:["Legal","Romance"],      r:9.1, y:2022, flag:"AWARD",  img:"https://upload.wikimedia.org/wikipedia/en/9/9d/Strange_Lawyer_Woo_Young-woo.png" },
+    { t:"My Love from the Star",        g:["Fantasy","Romance"],    r:9.0, y:2013, flag:"CLASSIC",img:"https://upload.wikimedia.org/wikipedia/en/0/05/My_Demon.jpg" },
+  ],
+};
+
+const TICKER_TITLES = [
+  "Crash Landing on You","My Demon","Vincenzo","The Glory","Business Proposal",
+  "Our Beloved Summer","Marry My Husband","Queen of Tears","Alchemy of Souls",
+  "Word of Honor","Nirvana in Fire","Extraordinary Attorney Woo",
+];
+
+/* ─────────────────────────────────────────────
+   §A2  HERO SLIDESHOW IMAGES (Task 3)
+   High-quality cinematic Asian photography
+───────────────────────────────────────────── */
+const HERO_IMAGES = [
+  "https://wallpapercat.com/w/full/0/c/f/46439-1920x1080-desktop-1080p-squid-game-background.jpg",   // K-drama scene
+  "https://wallpaperaccess.com/full/8986048.jpg",   // Seoul skyline
+  "https://wallpapers.com/images/hd/all-of-us-are-dead-cast-pic-nd5yveq3ldpb6boy.jpg",   // Tokyo night
+  "https://wallpapercave.com/wp/wp11391889.png",      // Japan street
+  "https://wallpaperaccess.com/full/12622543.jpg",   // Cherry blossoms
+];
+
+/* ─────────────────────────────────────────────
+   §A3  FEATURED CAROUSEL DATA (Task 2)
+───────────────────────────────────────────── */
+const CAROUSEL_DATA = [
+  {
+    label: "Featured",
+    title: "Queen of Tears",
+    sub: "— Season Finale",
+    desc: "The most-watched K-Drama of 2024 returns with an explosive season finale. Don't miss one moment of the most emotional episode yet.",
+    modal: "Queen of Tears — Season Finale",
+    img: "https://image.tmdb.org/t/p/w533_and_h300_face/wcP3FsRLog4GNEs9PFrDKKQdcof.jpg",
+  },
+  {
+    label: "🔥 Global Phenomenon",
+    title: "Squid Game",
+    sub: "— Season 2",
+    desc: "456 strangers accept a mysterious invitation to compete in children's games with fatal consequences. The sequel raises every stake higher.",
+    modal: "Squid Game",
+    img: "https://wallpapercat.com/w/full/c/e/4/120573-1920x1080-desktop-full-hd-squid-game-background-image.jpg",
+  },
+  {
+    label: "C-Drama Masterpiece",
+    title: "Nirvana in Fire",
+    sub: "— The Legend",
+    desc: "Political intrigue, brilliant strategy, and breathtaking performances across 54 unforgettable episodes. A masterpiece of Chinese historical drama.",
+    modal: "Nirvana in Fire",
+    img: "https://1.vikiplatform.com/c/22943c/eb20716cb7.jpg?x=b&a=0x0&s=1600x900&e=t&q=g"
+          
+  },
+  {
+    label: "All-Time Classic",
+    title: "Crash Landing on You",
+    sub: "— Full Series",
+    desc: "A South Korean heiress accidentally paraglides into North Korea and falls in love with a military officer. An impossible love story for the ages.",
+    modal: "Crash Landing on You",
+    img: "https://wallpaperaccess.com/full/2112225.jpg",
+  },
+];
+
+
+/* ─────────────────────────────────────────────
+   §B  TRANSLATIONS (EN / AR)
+───────────────────────────────────────────── */
+const I18N = {
+  en: {
+    dir:"ltr", lang:"en",
+    "logo":"DramaSphere",
+    "nav-home":"Home","nav-kd":"K-Dramas","nav-cd":"C-Dramas","nav-movies":"Movies","nav-trending":"Trending",
+    "hero-eyebrow":"Now Streaming · New Episodes Daily",
+    "hero-h1a":"Stream Your Favorite",
+    "hero-h1b":"Asian Dramas in HD",
+    "hero-sub":"Thousands of K-Dramas, C-Dramas, Thai series, and movies — new episodes every day, zero buffering.",
+    "hero-cta1":"Watch Latest Episode",
+    "hero-cta2":"Trending Now",
+    "stat1":"Episodes","stat2":"Series","stat3":"HD Quality",
+    "lbl-kd":"K-Dramas","ttl-kd":"Top Rated Series","all-kd":"View All →",
+    "lbl-cd":"C-Dramas","ttl-cd":"Chinese Originals","all-cd":"View All →",
+    "lbl-tr":"This Week","ttl-tr":"Trending Now 🔥","all-tr":"View All →",
+    "lbl-feat":"Featured","ttl-feat":"Queen of Tears\n— Season Finale",
+    "desc-feat":"The most-watched K-Drama of 2024 returns with an explosive season finale. Don't miss one moment of the most emotional episode yet.",
+    "cta-feat":"Stream Now",
+    "card-btn":"Watch Now",
+    "modal-title":"Human Verification Required",
+    "modal-desc":"To unlock and stream the full video package for",
+    "modal-desc2":" in high definition (1080p), please complete one quick verification offer below.",
+    "modal-loading":"Checking network gateway options…",
+    "modal-trust":"Verification is completely free and takes less than 2 minutes.",
+    "foot-desc":"Your gateway to the best Asian drama content. Stream thousands of shows in HD quality.",
+    "foot-browse":"Browse","foot-info":"Info","foot-lang":"Languages",
+    "foot-about":"About Us","foot-contact":"Contact","foot-dmca":"DMCA","foot-privacy":"Privacy Policy",
+    "foot-copy":"© 2025 DramaSphere. For entertainment purposes.",
+  },
+  ar: {
+    dir:"rtl", lang:"ar",
+    "logo":"دراما سفير",
+    "nav-home":"الرئيسية","nav-kd":"مسلسلات كورية","nav-cd":"مسلسلات صينية","nav-movies":"أفلام","nav-trending":"الأكثر مشاهدة",
+    "hero-eyebrow":"البث الآن · حلقات جديدة يومياً",
+    "hero-h1a":"شاهد مسلسلاتك الآسيوية",
+    "hero-h1b":"المفضلة بجودة عالية",
+    "hero-sub":"آلاف المسلسلات الكورية والصينية والتايلاندية والأفلام — حلقات جديدة يومياً، بدون تقطع.",
+    "hero-cta1":"شاهد الحلقة الأخيرة",
+    "hero-cta2":"الأكثر رواجاً",
+    "stat1":"حلقة","stat2":"مسلسل","stat3":"جودة HD",
+    "lbl-kd":"مسلسلات كورية","ttl-kd":"الأعلى تقييماً","all-kd":"← عرض الكل",
+    "lbl-cd":"مسلسلات صينية","ttl-cd":"إنتاجات صينية أصلية","all-cd":"← عرض الكل",
+    "lbl-tr":"هذا الأسبوع","ttl-tr":"🔥 الأكثر مشاهدة الآن","all-tr":"← عرض الكل",
+    "lbl-feat":"مميز","ttl-feat":"ملكة الدموع\n— النهاية الموسمية",
+    "desc-feat":"يعود المسلسل الكوري الأكثر مشاهدة في 2024 بنهاية موسمية مذهلة. لا تفوّت لحظة واحدة من أكثر الحلقات عاطفية حتى الآن.",
+    "cta-feat":"شاهد الآن",
+    "card-btn":"شاهد الآن",
+    "modal-title":"مطلوب التحقق البشري",
+    "modal-desc":"لفتح ومشاهدة الحلقة الكاملة لـ",
+    "modal-desc2":" بجودة عالية (1080p)، يرجى إكمال عرض تحقق سريع واحد أدناه.",
+    "modal-loading":"جاري التحقق من بوابة الاتصال المتاحة…",
+    "modal-trust":"عملية التحقق مجانية تماماً وتستغرق أقل من دقيقتين.",
+    "foot-desc":"بوابتك للمسلسلات الآسيوية الأفضل. شاهد آلاف المسلسلات بجودة HD.",
+    "foot-browse":"تصفح","foot-info":"معلومات","foot-lang":"اللغات",
+    "foot-about":"من نحن","foot-contact":"اتصل بنا","foot-dmca":"DMCA","foot-privacy":"سياسة الخصوصية",
+    "foot-copy":"© ٢٠٢٥ دراما سفير. لأغراض الترفيه.",
+  },
+};
+
+let currentLang = 'en';
+
+function setLang(lang) {
+  if (!I18N[lang]) return;
+  currentLang = lang;
+  const t = I18N[lang];
+  const html = document.documentElement;
+
+  html.setAttribute('lang', t.lang);
+  html.setAttribute('dir',  t.dir);
+
+  // Update every element carrying a data-i18n key
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+
+  // Refresh card Watch buttons (rendered by JS)
+  document.querySelectorAll('.card-cta [data-i18n="card-btn"]').forEach(el => {
+    el.textContent = t['card-btn'];
+  });
+
+  // Lang pill state
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-ar').classList.toggle('active', lang === 'ar');
+  document.getElementById('btn-en').setAttribute('aria-pressed', String(lang === 'en'));
+  document.getElementById('btn-ar').setAttribute('aria-pressed', String(lang === 'ar'));
+
+  localStorage.setItem('ds-lang', lang);
+}
+
+
+/* ─────────────────────────────────────────────
+   §C  RENDER DRAMA CARDS
+───────────────────────────────────────────── */
+function renderGrid(containerId, items) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  el.innerHTML = items.map((d, i) => {
+    const safeTitle = d.t.replace(/'/g, "\\'");
+    const delay = (i % 6) + 1;
+    const flagHTML = d.flag
+      ? `<div class="card-flag" aria-hidden="true">${d.flag}</div>` : '';
+    const tagsHTML = d.g.map(g => `<span class="card-tag">${g}</span>`).join('');
+
+    return `
+      <article class="d-card reveal rv-${delay}"
+               role="button"
+               tabindex="0"
+               aria-label="Watch ${d.t}"
+               onclick="openModal('${safeTitle}')"
+               onkeydown="if(event.key==='Enter'||event.key===' ')openModal('${safeTitle}')">
+        ${flagHTML}
+        <img class="card-poster"
+             src="${d.img}"
+             alt="${d.t} drama poster"
+             loading="lazy">
+        <div class="card-fog"></div>
+        <div class="card-body">
+          <div class="card-tags">${tagsHTML}</div>
+          <h3 class="card-title">${d.t}</h3>
+          <div class="card-meta">
+            <span class="card-stars">★ ${d.r}</span>
+            <span aria-hidden="true">·</span>
+            <span>${d.y}</span>
+          </div>
+          <button class="card-cta" tabindex="-1" aria-hidden="true" onclick="loadContentLocker();">
+            <span>▶</span>
+            <span data-i18n="card-btn">Watch Now</span>
+          </button>
+        </div>
+      </article>`;
+  }).join('');
+
+  // Wire up reveal observer for newly created cards
+  initReveal();
+}
+
+
+/* ─────────────────────────────────────────────
+   §D  TICKER
+───────────────────────────────────────────── */
+function buildTicker() {
+  const track = document.getElementById('ticker');
+  // Render titles twice for seamless loop
+  const html = [...TICKER_TITLES, ...TICKER_TITLES].map(t =>
+    `<span class="ticker-item"><span class="t-dot" aria-hidden="true"></span>${t}</span>`
+  ).join('');
+  track.innerHTML = html;
+}
+
+
+/* ─────────────────────────────────────────────
+   §E  MODAL
+───────────────────────────────────────────── */
+const overlay    = document.getElementById('modal-overlay');
+const dramaLabel = document.getElementById('modal-drama-label');
+const spinner    = document.getElementById('locker-spinner');
+
+function openModal(title) {
+  dramaLabel.textContent = ` "${title}"`;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Reset spinner visibility each time modal opens
+  spinner.style.display = 'block';
+  // Auto-hide spinner after 2 s (replace with real locker callback as needed)
+  setTimeout(() => { spinner.style.display = 'none'; }, 2000);
+  // Move focus into modal
+  setTimeout(() => overlay.querySelector('.modal-x').focus(), 60);
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleBackdropClick(e) {
+  if (e.target === overlay) closeModal();
+}
+
+// Escape key is handled in §M Search (closes search first, then modal)
+
+
+/* ─────────────────────────────────────────────
+   §F  THEME TOGGLE
+───────────────────────────────────────────── */
+const htmlEl    = document.documentElement;
+const themeIcon = document.getElementById('theme-icon');
+
+function toggleTheme() {
+  const next = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  htmlEl.setAttribute('data-theme', next);
+  themeIcon.textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('ds-theme', next);
+}
+
+// Restore saved theme on load
+(function restoreTheme() {
+  const saved = localStorage.getItem('ds-theme');
+  if (saved && saved !== 'dark') {
+    htmlEl.setAttribute('data-theme', saved);
+    themeIcon.textContent = '☀️';
+  }
+})();
+
+
+/* ─────────────────────────────────────────────
+   §G  MOBILE DRAWER
+───────────────────────────────────────────── */
+const drawer = document.getElementById('mobile-drawer');
+const burger = document.getElementById('hamburger');
+
+function toggleDrawer() {
+  const open = drawer.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', String(open));
+}
+function closeDrawer() {
+  drawer.classList.remove('open');
+  burger.classList.remove('open');
+  burger.setAttribute('aria-expanded', 'false');
+}
+window.addEventListener('resize', () => { if (window.innerWidth > 768) closeDrawer(); });
+
+
+/* ─────────────────────────────────────────────
+   §H  SCROLL OBSERVER — Reveal + Nav shadow
+───────────────────────────────────────────── */
+function initReveal() {
+  const ro = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        ro.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal:not(.in)').forEach(el => ro.observe(el));
+}
+
+// Nav scroll shadow + hero parallax (scale(1.08) matches .hero-bg CSS)
+const navEl = document.getElementById('nav');
+const heroBg = document.getElementById('hero-bg');
+
+window.addEventListener('scroll', () => {
+  navEl.classList.toggle('scrolled', window.scrollY > 24);
+  if (window.innerWidth > 768) {
+    heroBg.style.transform = `scale(1.08) translateY(${window.scrollY * 0.12}px)`;
+  }
+}, { passive: true });
+
+
+/* ─────────────────────────────────────────────
+   §K  HERO SLIDESHOW (Task 3)
+───────────────────────────────────────────── */
+function initHeroSlideshow() {
+  const container = document.getElementById('hero-bg');
+
+  // Build slide elements
+  const slides = HERO_IMAGES.map(url => {
+    const div = document.createElement('div');
+    div.className = 'hero-slide';
+    div.style.backgroundImage = `url('${url}')`;
+    div.setAttribute('aria-hidden', 'true');
+    container.appendChild(div);
+    return div;
+  });
+
+  let current = 0;
+
+  function activateSlide(idx) {
+    slides.forEach((s, i) => {
+      const isActive = (i === idx);
+      s.classList.toggle('active', isActive);
+      if (isActive) {
+        // Force CSS animation restart for Ken Burns
+        s.classList.remove('kb');
+        void s.offsetWidth; // trigger reflow
+        s.classList.add('kb');
+      } else {
+        s.classList.remove('kb');
+      }
+    });
+  }
+
+  // Preload next image slightly before switch
+  function preload(idx) {
+    const img = new Image();
+    img.src = HERO_IMAGES[idx];
+  }
+
+  activateSlide(0);
+  preload(1);
+
+  setInterval(() => {
+    current = (current + 1) % slides.length;
+    activateSlide(current);
+    preload((current + 1) % slides.length);
+  }, 6000);
+}
+
+
+/* ─────────────────────────────────────────────
+   §L  FEATURED CAROUSEL (Task 2)
+───────────────────────────────────────────── */
+let carouselIdx   = 0;
+let carouselTimer = null;
+
+function initCarousel() {
+  // Build dots
+  const dotsEl = document.getElementById('carousel-dots');
+  dotsEl.innerHTML = CAROUSEL_DATA.map((_, i) =>
+    `<button class="carousel-dot${i === 0 ? ' active' : ''}"
+             onclick="carouselGoto(${i})"
+             aria-label="Go to slide ${i + 1}"
+             role="tab"
+             aria-selected="${i === 0 ? 'true' : 'false'}"></button>`
+  ).join('');
+
+  // Render first slide without animation
+  _renderCarouselSlide(0, false);
+  _startCarouselTimer();
+}
+
+function _renderCarouselSlide(idx, animate) {
+  const copyEl = document.getElementById('feature-copy');
+  const visEl  = document.getElementById('feature-vis');
+  const imgEl  = document.getElementById('feature-img');
+  const d = CAROUSEL_DATA[idx];
+
+  if (animate) {
+    copyEl.classList.add('fade-out');
+    visEl.classList.add('fade-out');
+    setTimeout(() => {
+      _fillCarouselContent(copyEl, imgEl, d);
+      copyEl.classList.remove('fade-out');
+      visEl.classList.remove('fade-out');
+    }, 360);
+  } else {
+    _fillCarouselContent(copyEl, imgEl, d);
+  }
+
+  // Sync dot states
+  document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+    const active = (i === idx);
+    dot.classList.toggle('active', active);
+    dot.setAttribute('aria-selected', String(active));
+  });
+}
+
+function _fillCarouselContent(copyEl, imgEl, d) {
+  const safeModal = d.modal.replace(/'/g, "\\'");
+  copyEl.innerHTML = `
+    <p class="sec-label">${d.label}</p>
+    <h2 class="sec-title">
+      ${d.title}
+      <span style="display:block;font-size:.78em;font-weight:400;color:var(--text-mid);margin-top:.2rem">${d.sub}</span>
+    </h2>
+    <p>${d.desc}</p>
+    <button class="btn-primary" style="width:fit-content;margin-top:.4rem"
+            onclick="openModal('${safeModal}')">
+      <span aria-hidden="true">▶</span>
+      <span>Stream Now</span>
+    </button>`;
+  imgEl.src = d.img;
+  imgEl.alt = `${d.title} featured banner`;
+}
+
+function carouselGoto(idx) {
+  carouselIdx = idx;
+  _renderCarouselSlide(idx, true);
+  _resetCarouselTimer();
+}
+
+function carouselStep(dir) {
+  carouselIdx = (carouselIdx + dir + CAROUSEL_DATA.length) % CAROUSEL_DATA.length;
+  _renderCarouselSlide(carouselIdx, true);
+  _resetCarouselTimer();
+}
+
+function _startCarouselTimer() {
+  carouselTimer = setInterval(() => {
+    carouselIdx = (carouselIdx + 1) % CAROUSEL_DATA.length;
+    _renderCarouselSlide(carouselIdx, true);
+  }, 5000);
+}
+
+function _resetCarouselTimer() {
+  clearInterval(carouselTimer);
+  _startCarouselTimer();
+}
+
+
+/* ─────────────────────────────────────────────
+   §M  SEARCH (Task 1)
+───────────────────────────────────────────── */
+let _searchOpen = false;
+
+function toggleSearch() {
+  _searchOpen = !_searchOpen;
+  const panel   = document.getElementById('search-panel');
+  const toggleBtn = document.getElementById('search-toggle');
+  const inputEl = document.getElementById('search-input');
+
+  panel.classList.toggle('open', _searchOpen);
+  panel.setAttribute('aria-hidden', String(!_searchOpen));
+  toggleBtn.setAttribute('aria-expanded', String(_searchOpen));
+
+  if (_searchOpen) {
+    // Delay focus so CSS transition starts first
+    setTimeout(() => inputEl.focus(), 180);
+  } else {
+    inputEl.value = '';
+    _clearDropdown();
+  }
+}
+
+function clearSearch() {
+  const inputEl = document.getElementById('search-input');
+  inputEl.value = '';
+  inputEl.focus();
+  _clearDropdown();
+}
+
+function _clearDropdown() {
+  const dd = document.getElementById('search-dropdown');
+  dd.innerHTML = '';
+  dd.classList.remove('visible');
+}
+
+function _escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function _highlightMatch(text, query) {
+  const idx = text.toLowerCase().indexOf(query);
+  if (idx === -1) return _escHtml(text);
+  return (
+    _escHtml(text.slice(0, idx)) +
+    `<mark style="background:rgba(155,93,229,.22);color:var(--accent-a);border-radius:2px;padding:0 1px">` +
+      _escHtml(text.slice(idx, idx + query.length)) +
+    `</mark>` +
+    _escHtml(text.slice(idx + query.length))
+  );
+}
+
+function onSearchInput(e) {
+  const query = e.target.value.trim().toLowerCase();
+  const dd    = document.getElementById('search-dropdown');
+
+  if (query.length < 1) { _clearDropdown(); return; }
+
+  // Merge all drama arrays, deduplicate by title
+  const seen = new Set();
+  const results = [...DATA.kd, ...DATA.cd, ...DATA.tr]
+    .filter(d => {
+      if (seen.has(d.t)) return false;
+      seen.add(d.t);
+      return d.t.toLowerCase().includes(query);
+    })
+    .slice(0, 8);
+
+  if (results.length === 0) {
+    dd.innerHTML =
+      `<li class="search-empty">No results for "<strong>${_escHtml(e.target.value)}</strong>"</li>`;
+  } else {
+    dd.innerHTML = results.map(d => {
+      const safeTitle = _escHtml(d.t);
+      return `<li class="search-item"
+                  role="option" tabindex="0"
+                  data-title="${safeTitle}"
+                  onclick="selectSearchResult(this.dataset.title)"
+                  onkeydown="if(event.key==='Enter'||event.key===' ')selectSearchResult(this.dataset.title)">
+        <span class="search-item-icon" aria-hidden="true">🎬</span>
+        <span class="search-item-text">${_highlightMatch(d.t, query)}</span>
+        <span class="search-item-cat">${_escHtml(d.g[0])}</span>
+      </li>`;
+    }).join('');
+  }
+  dd.classList.add('visible');
+}
+
+function selectSearchResult(title) {
+  openModal(title);
+  toggleSearch();
+}
+
+// Close search panel when clicking outside
+document.addEventListener('click', e => {
+  if (!_searchOpen) return;
+  const panel  = document.getElementById('search-panel');
+  const toggle = document.getElementById('search-wrap');
+  if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+    toggleSearch();
+  }
+});
+
+// Escape key closes search (or modal)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (_searchOpen) { toggleSearch(); return; }
+    if (overlay.classList.contains('open')) closeModal();
+  }
+});
+
+
+/* ─────────────────────────────────────────────
+   §J  INIT
+───────────────────────────────────────────── */
+(function init() {
+  buildTicker();
+  renderGrid('grid-kd', DATA.kd);
+  renderGrid('grid-cd', DATA.cd);
+  renderGrid('grid-tr', DATA.tr);
+
+  initHeroSlideshow();   // Task 3 — dynamic hero background
+  initCarousel();        // Task 2 — featured carousel
+
+  initReveal();
+
+  // Wire up search input listener (Task 1)
+  document.getElementById('search-input').addEventListener('input', onSearchInput);
+
+  // Restore saved language preference
+  const savedLang = localStorage.getItem('ds-lang');
+  if (savedLang && I18N[savedLang]) setLang(savedLang);
+})();
+</script>
+<script type="text/javascript">
+function loadContentLocker() {
+    const slot = document.getElementById('content-locker-slot');
+    
+    // تأمين: لمنع تكرار تحميل القفل إذا ضغط الزائر أكثر من مرة
+    if (slot.innerHTML.trim() !== "") return;
+
+    // 1. إنشاء حماية الـ Noscript
+    const noscript = document.createElement('noscript');
+    noscript.innerHTML = '<meta http-equiv="refresh" content="0;url=https://appsave.online/noscript" />';
+    slot.appendChild(noscript);
+
+    // 2. تعريف متغير الحماية الخاص بـ OGAds
+    window.ogblock = true;
+
+    // 3. حقن كود الـ Locker الخاص بك برمجياً
+    const ogScript = document.createElement('script');
+    ogScript.type = 'text/javascript';
+    ogScript.id = 'ogjs';
+    ogScript.src = 'https://appsave.online/cl/i/grjvdp';
+    
+    // بمجرد أن يفتح القفل بنجاح، نقوم بإخفاء نص التحميل والـ Spinner
+    ogScript.onload = function() {
+        const spinner = document.getElementById('locker-spinner');
+        const loadingText = document.getElementById('locker-loading-text');
+        if(spinner) spinner.style.display = 'none';
+        if(loadingText) loadingText.style.display = 'none';
+    };
+    slot.appendChild(ogScript);
+
+    // 4. حماية ضد الـ Adblock
+    const adblockCheck = document.createElement('script');
+    adblockCheck.type = 'text/javascript';
+    adblockCheck.text = 'if(window.ogblock) window.location.href = "https://appsave.online/adblock";';
+    slot.appendChild(adblockCheck);
+}
+</script>
+</body>
+</html>
