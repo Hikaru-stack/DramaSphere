@@ -547,6 +547,19 @@
     }
     .d-card:hover .card-cta { opacity: 1; transform: translateY(0); }
 
+    /* ── Mobile touch hover simulation ── */
+    .d-card.touched {
+      transform: translateY(-7px) scale(1.025);
+      border-color: var(--accent-a);
+      box-shadow:
+        0 22px 60px rgba(0,0,0,.60),
+        0 0 0 2px var(--accent-a),
+        0 0 36px rgba(155,93,229,.28);
+    }
+    .d-card.touched .card-poster { transform: scale(1.07); }
+    .d-card.touched .card-body   { transform: translateY(0); }
+    .d-card.touched .card-cta    { opacity: 1; transform: translateY(0); }
+
     /* Corner badge */
     .card-flag {
       position: absolute; top: 10px; right: 10px;
@@ -678,8 +691,10 @@
       position: fixed; inset: 0; z-index: 9500;
       background: var(--modal-bg);
       backdrop-filter: blur(10px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 16px;
+      overflow-y: auto;          /* scroll when modal is taller than viewport */
+      -webkit-overflow-scrolling: touch;
       opacity: 0; visibility: hidden;
       transition: opacity .3s ease, visibility .3s ease;
     }
@@ -689,8 +704,9 @@
       background: var(--modal-card);
       border: 1px solid var(--border-subtle);
       border-radius: 26px;
-      padding: 44px 38px;
-      max-width: 470px; width: 100%;
+      padding: 30px 28px 26px;
+      max-width: 860px; width: 100%;
+      margin: auto 0;            /* vertical auto-centres when viewport is taller */
       position: relative;
       box-shadow: var(--shadow-modal);
       transform: scale(.91) translateY(22px);
@@ -712,15 +728,15 @@
 
     /* Modal icon */
     .modal-icon {
-      width: 68px; height: 68px;
-      background: var(--grad-accent); border-radius: 20px;
+      width: 50px; height: 50px;
+      background: var(--grad-accent); border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 30px; margin: 0 auto 1.5rem;
-      box-shadow: 0 12px 32px rgba(155,93,229,.40);
+      font-size: 22px; margin: 0 auto .85rem;
+      box-shadow: 0 10px 26px rgba(155,93,229,.38);
     }
 
-    .modal-title { font-size: 1.38rem; font-weight: 800; text-align: center; letter-spacing: -.3px; margin-bottom: .55rem; }
-    .modal-desc  { font-size: .88rem; color: var(--text-mid); text-align: center; line-height: 1.65; margin-bottom: 1.8rem; }
+    .modal-title { font-size: 1.18rem; font-weight: 800; text-align: center; letter-spacing: -.3px; margin-bottom: .35rem; }
+    .modal-desc  { font-size: .84rem; color: var(--text-mid); text-align: center; line-height: 1.6; margin-bottom: 1.1rem; }
     .modal-desc strong { color: var(--text-hi); }
 
     /* Locker container */
@@ -728,11 +744,26 @@
       background: var(--bg-surface);
       border: 1.5px dashed var(--border-subtle);
       border-radius: 14px;
-      padding: 28px 18px;
-      min-height: 120px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-      margin-bottom: 1.5rem;
+      padding: 8px;
+      min-height: 620px;
+      display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 0;
+      margin-bottom: 1rem;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Spinner overlay inside locker-wrap */
+    #locker-spinner-wrap {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      z-index: 2;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      transition: opacity 0.3s ease;
+    }
+    #locker-spinner-wrap.hidden {
+      opacity: 0; pointer-events: none;
     }
 
     /* Spinner */
@@ -750,8 +781,19 @@
       text-transform: uppercase; letter-spacing: 1.5px;
     }
 
-    /* ✅ YOUR CONTENT LOCKER SCRIPT/IFRAME GOES INSIDE THIS DIV */
-    #content-locker-slot { width: 100%; }
+    /* ✅ CONTENT LOCKER IFRAME */
+    #content-locker-slot { width: 100%; flex: 1; display: flex; flex-direction: column; }
+    .locker-iframe {
+      width: 100%;
+      min-height: 600px;
+      flex: 1;
+      border: none;
+      border-radius: 10px;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .locker-iframe.loaded { opacity: 1; }
 
     /* Trust line */
     .modal-trust { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: .74rem; color: var(--text-lo); }
@@ -801,7 +843,11 @@
       .drama-grid    { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: .9rem; }
       .hero-stats    { gap: 1.4rem; }
       .cta-row       { flex-direction: column; align-items: flex-start; }
-      .modal-box     { padding: 32px 22px; }
+      /* Modal — bottom-sheet anchored to screen bottom */
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal-box     { padding: 22px 14px 18px; border-radius: 20px 20px 0 0; max-width: 100%; margin: auto 0 0; }
+      .locker-wrap   { min-height: calc(100dvh - 230px); border-radius: 8px; }
+      .locker-iframe { min-height: calc(100dvh - 250px); }
       .footer-grid   { grid-template-columns: 1fr; gap: 1.5rem; }
       .footer-bottom { flex-direction: column; align-items: flex-start; }
       .feature-copy  { padding: 2rem 5% 3.5rem; }
@@ -1232,14 +1278,29 @@
     </p>
 
     <!-- ═══ CONTENT LOCKER CONTAINER ═══ -->
-    <!-- ═══ CONTENT LOCKER CONTAINER ═══ -->
-<div class="locker-wrap">
-  <!-- هذا الـ Spinner ونص التحميل سيختفيان تلقائياً بمجرد ظهور العروض -->
-  <div class="spinner" id="locker-spinner"></div>
-  <p class="locker-label" id="locker-loading-text" data-i18n="modal-loading">Loading unlock options…</p>
-  
-  <!-- هذا المكان السحري الفارغ الذي سيتم حقن عروض OGAds داخله برمجياً -->
-  <div id="content-locker-slot"></div>
+<div class="locker-wrap" id="locker-wrap">
+
+  <!-- Loading spinner (shown until iframe is ready) -->
+  <div id="locker-spinner-wrap">
+    <div class="spinner" id="locker-spinner"></div>
+    <p class="locker-label" id="locker-loading-text" data-i18n="modal-loading">Loading unlock options…</p>
+  </div>
+
+  <!-- Content locker iframe — src set by JS on first modal open -->
+  <div id="content-locker-slot">
+    <iframe
+      id="content-locker-iframe"
+      class="locker-iframe"
+      src=""
+      allowtransparency="true"
+      scrolling="auto"
+      frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; payment"
+      title="Unlock content"
+      onload="onLockerLoad()"
+    ></iframe>
+  </div>
+
 </div>
 <!-- ═══════════════════════════════════════════════ -->
 
@@ -1483,7 +1544,7 @@ function renderGrid(containerId, items) {
             <span aria-hidden="true">·</span>
             <span>${d.y}</span>
           </div>
-          <button class="card-cta" tabindex="-1" aria-hidden="true" onclick="loadContentLocker();">
+          <button class="card-cta" tabindex="-1" aria-hidden="true">
             <span>▶</span>
             <span data-i18n="card-btn">Watch Now</span>
           </button>
@@ -1514,18 +1575,37 @@ function buildTicker() {
 ───────────────────────────────────────────── */
 const overlay    = document.getElementById('modal-overlay');
 const dramaLabel = document.getElementById('modal-drama-label');
-const spinner    = document.getElementById('locker-spinner');
 
 function openModal(title) {
   dramaLabel.textContent = ` "${title}"`;
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  // Reset spinner visibility each time modal opens
-  spinner.style.display = 'block';
-  // Auto-hide spinner after 2 s (replace with real locker callback as needed)
-  setTimeout(() => { spinner.style.display = 'none'; }, 2000);
+
+  // Load the content locker iframe on first open only
+  const iframe = document.getElementById('content-locker-iframe');
+  const spinnerWrap = document.getElementById('locker-spinner-wrap');
+  if (iframe) {
+    if (!iframe.getAttribute('data-loaded')) {
+      // First open: set src, show spinner
+      if (spinnerWrap) {
+        spinnerWrap.classList.remove('hidden');
+        spinnerWrap.style.display = '';
+      }
+      iframe.src = 'https://appsave.space/cl/i/grjvdp';
+    }
+    // If already loaded, spinner stays hidden (managed by onLockerLoad)
+  }
+
   // Move focus into modal
   setTimeout(() => overlay.querySelector('.modal-x').focus(), 60);
+}
+
+/* Called by iframe onload — hides spinner and fades in the locker */
+function onLockerLoad() {
+  const iframe      = document.getElementById('content-locker-iframe');
+  const spinnerWrap = document.getElementById('locker-spinner-wrap');
+  if (iframe)      { iframe.setAttribute('data-loaded', '1'); iframe.classList.add('loaded'); }
+  if (spinnerWrap) { spinnerWrap.classList.add('hidden'); }
 }
 
 function closeModal() {
@@ -1867,8 +1947,59 @@ document.addEventListener('keydown', e => {
 
 
 /* ─────────────────────────────────────────────
-   §J  INIT
+   §N  MOBILE TOUCH-HOVER SIMULATION
+   Tapping / resting a finger on a card instantly
+   reveals the "Watch Now" button (mirrors :hover).
 ───────────────────────────────────────────── */
+(function initTouchHover() {
+  let _active  = null;   // currently "touched" card
+  let _timer   = null;   // deferred removal timer
+
+  function untouchCard(card, delay) {
+    clearTimeout(_timer);
+    _timer = setTimeout(() => {
+      if (card) card.classList.remove('touched');
+      if (_active === card) _active = null;
+    }, delay);
+  }
+
+  // touchstart  → add .touched immediately (instant reveal)
+  document.addEventListener('touchstart', function(e) {
+    const card = e.target.closest('.d-card');
+
+    // Remove previous touched card without delay
+    if (_active && _active !== card) {
+      clearTimeout(_timer);
+      _active.classList.remove('touched');
+      _active = null;
+    }
+
+    if (!card) return;
+    clearTimeout(_timer);
+    card.classList.add('touched');
+    _active = card;
+  }, { passive: true });
+
+  // touchend → keep visible briefly so button can be tapped, then fade
+  document.addEventListener('touchend', function(e) {
+    const card = e.target.closest('.d-card');
+    if (!card) return;
+    // Keep the reveal for 700 ms so users can clearly see & tap "Watch Now"
+    untouchCard(card, 700);
+  }, { passive: true });
+
+  // touchcancel → remove immediately
+  document.addEventListener('touchcancel', function() {
+    if (_active) {
+      clearTimeout(_timer);
+      _active.classList.remove('touched');
+      _active = null;
+    }
+  }, { passive: true });
+})();
+
+
+
 (function init() {
   buildTicker();
   renderGrid('grid-kd', DATA.kd);
@@ -1888,42 +2019,6 @@ document.addEventListener('keydown', e => {
   if (savedLang && I18N[savedLang]) setLang(savedLang);
 })();
 </script>
-<script type="text/javascript">
-function loadContentLocker() {
-    const slot = document.getElementById('content-locker-slot');
-    
-    // تأمين: لمنع تكرار تحميل القفل إذا ضغط الزائر أكثر من مرة
-    if (slot.innerHTML.trim() !== "") return;
 
-    // 1. إنشاء حماية الـ Noscript
-    const noscript = document.createElement('noscript');
-    noscript.innerHTML = '<meta http-equiv="refresh" content="0;url=https://appsave.online/noscript" />';
-    slot.appendChild(noscript);
-
-    // 2. تعريف متغير الحماية الخاص بـ OGAds
-    window.ogblock = true;
-
-    // 3. حقن كود الـ Locker الخاص بك برمجياً
-    const ogScript = document.createElement('script');
-    ogScript.type = 'text/javascript';
-    ogScript.id = 'ogjs';
-    ogScript.src = 'https://appsave.online/cl/i/grjvdp';
-    
-    // بمجرد أن يفتح القفل بنجاح، نقوم بإخفاء نص التحميل والـ Spinner
-    ogScript.onload = function() {
-        const spinner = document.getElementById('locker-spinner');
-        const loadingText = document.getElementById('locker-loading-text');
-        if(spinner) spinner.style.display = 'none';
-        if(loadingText) loadingText.style.display = 'none';
-    };
-    slot.appendChild(ogScript);
-
-    // 4. حماية ضد الـ Adblock
-    const adblockCheck = document.createElement('script');
-    adblockCheck.type = 'text/javascript';
-    adblockCheck.text = 'if(window.ogblock) window.location.href = "https://appsave.online/adblock";';
-    slot.appendChild(adblockCheck);
-}
-</script>
 </body>
 </html>
